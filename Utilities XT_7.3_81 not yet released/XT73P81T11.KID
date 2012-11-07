@@ -1,11 +1,11 @@
-KIDS Distribution saved on Jan 05, 2012@16:09:40
-Test version 9 of patch XT*7.3*81 Programmer Utilities and M-Unit
+KIDS Distribution saved on Sep 04, 2012@16:44:01
+XT*7.3*81 T11
 **KIDS**:XT*7.3*81^
 
 **INSTALL NAME**
 XT*7.3*81
 "BLD",790,0)
-XT*7.3*81^TOOLKIT^0^3120105^y^^
+XT*7.3*81^TOOLKIT^0^3120904^y^^
 "BLD",790,1,0)
 ^^3^3^3080606^^^^
 "BLD",790,1,1,0)
@@ -29,7 +29,7 @@ y^y^f^^n^^y^m^n
 "BLD",790,4,"B",8992.8,8992.8)
 
 "BLD",790,6.3)
-18
+22
 "BLD",790,"KRN",0)
 ^9.67PA^8989.52^19
 "BLD",790,"KRN",.4,0)
@@ -187,7 +187,7 @@ ZZMTXLF
 "DATA",8992.8,2,1,4,0)
 ZZMTXLF1
 "DATA",8992.8,3,0)
-ALERTS
+XQAL ALERTS
 "DATA",8992.8,3,1,0)
 ^8992.81^5^5
 "DATA",8992.8,3,1,1,0)
@@ -201,7 +201,7 @@ ZZUTXQA4
 "DATA",8992.8,3,1,5,0)
 ZZUTXQA5
 "DATA",8992.8,3,2,0)
-^^1^1^3111228^
+^8992.82^1^1^3120518^^
 "DATA",8992.8,3,2,1,0)
 Entry point to run all unit test routines: D ^ZZUTXQA1
 "DATA",8992.8,4,0)
@@ -298,6 +298,50 @@ ZZMTUSR1
 ^^1^1^3090930^
 "DATA",8992.8,12,2,1,0)
 Do unit test on the NETNM^XUSER1.
+"DATA",8992.8,13,0)
+XQ MENU MANAGER
+"DATA",8992.8,13,1,0)
+^8992.81^2^2
+"DATA",8992.8,13,1,1,0)
+ZZUTXQ12
+"DATA",8992.8,13,1,2,0)
+ZZUTXQ00
+"DATA",8992.8,13,2,0)
+^^1^1^3120518^
+"DATA",8992.8,13,2,1,0)
+Entry point D ^ZZUTXQ00
+"DATA",8992.8,14,0)
+ZI DEVICE HANDLER
+"DATA",8992.8,14,1,0)
+^8992.81^1^1
+"DATA",8992.8,14,1,1,0)
+ZZUTZI00
+"DATA",8992.8,14,2,0)
+^^1^1^3120518^
+"DATA",8992.8,14,2,1,0)
+Entry point D ^ZZUTZI00
+"DATA",8992.8,15,0)
+XU BSE
+"DATA",8992.8,15,1,0)
+^8992.81^1^1
+"DATA",8992.8,15,1,1,0)
+ZZUTXU00
+"DATA",8992.8,15,2,0)
+^^2^2^3120601^
+"DATA",8992.8,15,2,1,0)
+Broker Security Enhancement
+"DATA",8992.8,15,2,2,0)
+D ^ZZUTXU00
+"DATA",8992.8,16,0)
+XLFIPV
+"DATA",8992.8,16,1,0)
+^8992.81^1^1
+"DATA",8992.8,16,1,1,0)
+ZZUTXL00
+"DATA",8992.8,16,2,0)
+^^1^1^3120806^
+"DATA",8992.8,16,2,1,0)
+IPv4 and IPv6 utilities.
 "FIA",8992.7)
 LOG4M CONFIG
 "FIA",8992.7,0)
@@ -387,13 +431,15 @@ MUNIT TEST GROUP EDIT
 "KRN",19,959,-1)
 0^3
 "KRN",19,959,0)
-XTMUNIT GROUP RUN^Run MUnit Tests from Test Groups^^R^^^^^^^^TOOLKIT
+XTMUNIT GROUP RUN^Run MUnit Tests from Test Groups^^R^^^^^^^^TOOLKIT^^1
 "KRN",19,959,1,0)
 ^^2^2^3031030^
 "KRN",19,959,1,1,0)
 Provides a means of initiating a unit test run from the menu system based 
 "KRN",19,959,1,2,0)
 on entries in the MUNIT TEST GROUP file (#8992.8).
+"KRN",19,959,20)
+S XTMUVERB=1
 "KRN",19,959,25)
 PICKSET^XTMUNIT
 "KRN",19,959,99.1)
@@ -437,9 +483,9 @@ TOOLKIT^XT^PROGRAMMERS OPTIONS, MULTI. TERM LOOKUP^
 "PKG",6,22,1,0)
 7.3^3040428^2970513^2
 "PKG",6,22,1,"PAH",1,0)
-81^3120105^2
+81^3120904^2
 "PKG",6,22,1,"PAH",1,1,0)
-^^3^3^3120105
+^^3^3^3120904
 "PKG",6,22,1,"PAH",1,1,1,0)
 XT*7.3*81
 "PKG",6,22,1,"PAH",1,1,2,0)
@@ -523,7 +569,7 @@ D XPZ2^XPDIQ
 "RTN","XTMLOG",1,0)
 XTMLOG ;JLI/FO-OAK - LOG4M M LOGGING UTILITY ;11/15/10  10:34
 "RTN","XTMLOG",2,0)
- ;;7.3;TOOLKIT;**81,101**;Apr 25, 1995;Build 18
+ ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 22
 "RTN","XTMLOG",3,0)
  ;;Per VHA Directive 2004-038, this routine should not be modified
 "RTN","XTMLOG",4,0)
@@ -1183,7 +1229,7 @@ REALERR ; entry to log a real error
 "RTN","XTMLOG1",1,0)
 XTMLOG1 ;jli/fo-oak - handle appender functions for Log4M ;06/07/08  17:06
 "RTN","XTMLOG1",2,0)
- ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 18
+ ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 22
 "RTN","XTMLOG1",3,0)
  ;;Per VHA Directive 2004-038, this routine should not be modified
 "RTN","XTMLOG1",4,0)
@@ -1525,7 +1571,7 @@ MILLISEC(FMDATE,FRMT) ;
 "RTN","XTMLOPAR",1,0)
 XTMLOPAR ;JLI/FO-OAK - HANDLE PARSING FOR LOG4M XML CONFIGURATION FILE ;06/07/08  17:05
 "RTN","XTMLOPAR",2,0)
- ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 18
+ ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 22
 "RTN","XTMLOPAR",3,0)
  ;;Per VHA Directive 2004-038, this routine should not be modified
 "RTN","XTMLOPAR",4,0)
@@ -1731,7 +1777,7 @@ LOADGLOB ; Load input (pasted) text into a global
 "RTN","XTMLOSKT",1,0)
 XTMLOSKT ;SLC/KCM;OAK/JLI - Socket Appender borrowed from XWBTCPL ;06/07/08  17:02
 "RTN","XTMLOSKT",2,0)
- ;;7.3;T0OLKIT;**81**;Apr 25, 1995;Build 18
+ ;;7.3;T0OLKIT;**81**;Apr 25, 1995;Build 22
 "RTN","XTMLOSKT",3,0)
  ;;Per VHA Directive 2004-038, this routine should not be modified
 "RTN","XTMLOSKT",4,0)
@@ -2083,7 +2129,7 @@ SETDATA(STR,PORT,COUNT) ;
 "RTN","XTMRPRNT",1,0)
 XTMRPRNT ;ISC-SF.SEA/JLI - ROUTINE LISTER ;11/23/09  15:55
 "RTN","XTMRPRNT",2,0)
- ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 18
+ ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 22
 "RTN","XTMRPRNT",3,0)
  ;;Per VHA Directive 2004-038, this routine should not be modified
 "RTN","XTMRPRNT",4,0)
@@ -2133,7 +2179,7 @@ ENTRY ;
 "RTN","XTMUNIT",1,0)
 XTMUNIT ;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;07/19/11  14:12
 "RTN","XTMUNIT",2,0)
- ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 18
+ ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 22
 "RTN","XTMUNIT",3,0)
  ;;Per VHA Directive 2004-038, this routine should not be modified
 "RTN","XTMUNIT",4,0)

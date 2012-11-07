@@ -1,5 +1,3 @@
-
-TEST
 KIDS Distribution saved on Jan 05, 2012@16:12:16
 Test Version 6 of Patch XT*7.3*101 Eclipse M-Editor
 **KIDS**:XT*7.3*101^

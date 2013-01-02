@@ -1,5 +1,5 @@
-XTMUNIT ;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;07/19/11  14:12
- ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 22
+XTMUNIT ;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;08/13/12  10:04
+ ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 24
  ;;Per VHA Directive 2004-038, this routine should not be modified
  ; 100622 JLI - corrected typo in comments where XTMUINPT was listed as XTMUINP
  ; 100622 JLI - removed a comment which indicated data could potentially be returned from the called routine
@@ -47,6 +47,8 @@ EN1(XTMUROU,XTMULIST) ;
  . F XTMUI=1:1 S XTMUNIT("ELIN")=$T(@("XTENT+"_XTMUI_"^"_XTMUROU(XTMUNIT("CURR")))) Q:$P(XTMUNIT("ELIN"),";",3)=""  D
  . . S XTMUNIT("ENTN")=XTMUNIT("ENTN")+1,XTMUETRY(XTMUNIT("ENTN"))=$P(XTMUNIT("ELIN"),";",3),XTMUETRY(XTMUNIT("ENTN"),"NAME")=$P(XTMUNIT("ELIN"),";",4)
  . . Q
+ . ; 120812 Add code to check each tag for @TEST attribute to indicate a unit test entry point
+ . D CHEKTEST^XTMUNIT1(XTMUROU(XTMUNIT("CURR")),.XTMUNIT,.XTMUETRY)
  . ; if a SETUP entry point exists, do it first
  . S XTMUNIT("LINE")=$T(@("SETUP^"_XTMUROU(XTMUNIT("CURR")))) I XTMUNIT("LINE")'="" D
  . . N $ETRAP S $ETRAP="D ERROR^XTMUNIT",XTMUNIT("ENT")="SETUP^"_XTMUROU(XTMUNIT("CURR")),XTMUNIT("NAME")="Setup code"

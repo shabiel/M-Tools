@@ -1,11 +1,11 @@
-KIDS Distribution saved on Sep 04, 2012@16:45:26
-XT*7.3*101 T8
+KIDS Distribution saved on Dec 29, 2012@11:25:31
+SERVER SIDE FOR M-EDITOR FOR ECLIPSE
 **KIDS**:XT*7.3*101^
 
 **INSTALL NAME**
 XT*7.3*101
 "BLD",967,0)
-XT*7.3*101^TOOLKIT^0^3120904^y^^
+XT*7.3*101^TOOLKIT^0^3121229^y^^
 "BLD",967,1,0)
 ^^3^3^3120127^^^^
 "BLD",967,1,1,0)
@@ -17,7 +17,7 @@ See the patch module for details.
 "BLD",967,4,0)
 ^9.64PA^^
 "BLD",967,6.3)
-27
+30
 "BLD",967,"KRN",0)
 ^9.67PA^8989.52^19
 "BLD",967,"KRN",.4,0)
@@ -151,9 +151,9 @@ TOOLKIT^XT^PROGRAMMERS OPTIONS, MULTI. TERM LOOKUP^
 "PKG",6,22,1,0)
 7.3^3040428^2970513^2
 "PKG",6,22,1,"PAH",1,0)
-101^3120904
+101^3121229
 "PKG",6,22,1,"PAH",1,1,0)
-^^3^3^3120904
+^^3^3^3121229
 "PKG",6,22,1,"PAH",1,1,1,0)
 XT*7.3*101
 "PKG",6,22,1,"PAH",1,1,2,0)
@@ -237,7 +237,7 @@ D XPZ2^XPDIQ
 "RTN","XTECGLO",1,0)
 XTECGLO ;FO-OAK/JLI - Global Utilities for Eclipse ;08/10/12  06:20
 "RTN","XTECGLO",2,0)
- ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 27
+ ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 30
 "RTN","XTECGLO",3,0)
  ;;Per VHA Directive 2004-038, this routine should not be modified
 "RTN","XTECGLO",4,0)
@@ -1043,7 +1043,7 @@ COMMACNT(GLOBAL) ;returns comma length for GLOBAL
 "RTN","XTECLIPS",1,0)
 XTECLIPS ;JLI/FO-OAK - Eclipse Interface Via VistA Link ;01/15/12  13:56
 "RTN","XTECLIPS",2,0)
- ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 27
+ ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 30
 "RTN","XTECLIPS",3,0)
  ;;Per VHA Directive 2004-038, this routine should not be modified
 "RTN","XTECLIPS",4,0)
@@ -1121,7 +1121,7 @@ RPC(XTECRES,XTECFUNC,XTECLINE,XTECFROM,XTECTO,XTECOPT,XTECXTRA) ;
 "RTN","XTECROU",1,0)
 XTECROU ;FO-OAK/JLI - routine processing for eclipse ;08/06/12  19:20
 "RTN","XTECROU",2,0)
- ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 27
+ ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 30
 "RTN","XTECROU",3,0)
  ;;Per VHA Directive 2004-038, this routine should not be modified
 "RTN","XTECROU",4,0)
@@ -1587,7 +1587,7 @@ FILE(X) ; file routine name X to ROUTINE FILE if not already present
 "RTN","XTMRPAR1",1,0)
 XTMRPAR1 ;jli/oifo-oak - list tags, find variables that aren't arguments or newed ;10/28/10  16:18
 "RTN","XTMRPAR1",2,0)
- ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 27
+ ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 30
 "RTN","XTMRPAR1",3,0)
  D EN^XTMUNIT("ZZUTXTM1") ; RUN UNIT TESTS
 "RTN","XTMRPAR1",4,0)
@@ -2001,7 +2001,7 @@ GETQUOTE(LINE,TOKEN,TERM) ;
 "RTN","XTMRPAR2",1,0)
 XTMRPAR2 ;FO-OAK/JLI - list tags, find variables that aren't arguments or newed - continued ;10/28/10  16:28
 "RTN","XTMRPAR2",2,0)
- ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 27
+ ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 30
 "RTN","XTMRPAR2",3,0)
  ;;Per VHA Directive 2004-038, this routine should not be modified
 "RTN","XTMRPAR2",4,0)

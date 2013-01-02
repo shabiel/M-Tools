@@ -1,5 +1,5 @@
-XTMLOG ;JLI/FO-OAK - LOG4M M LOGGING UTILITY ;11/15/10  10:34
- ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 22
+XTMLOG ;JLI/FO-OAK - LOG4M M LOGGING UTILITY ;11/15/10  10:43
+ ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 24
  ;;Per VHA Directive 2004-038, this routine should not be modified
  ;
  ; Routine provides logging capability similar in various
@@ -25,11 +25,13 @@ FILEINIT(NAMEFLD) ; jli .SR -- called as extrinsic function
  ; ZEXCEPT: XTLOGINP - KILLED IN ENDLOG
  S XTMLIEN=$O(^XTV(8992.7,"B",NAMEFLD,0)) I XTMLIEN'>0 Q 0
  ; get data from the LOG4M CONFIG file
- D GETS^DIQ(8992.7,XTMLIEN_",",".02:.08","I","XTMLRES","XTMLERR")
+ D GETS^DIQ(8992.7,XTMLIEN_",",".02:.06;3.01:3.03","I","XTMLRES","XTMLERR")
  S XTMLARR=$NA(XTMLRES(8992.7,XTMLIEN_","))
  ; quit if logging set to NO or it is not there
  I ($G(@XTMLARR@(.02,"I"))="N")!($G(@XTMLARR@(.02,"I"))="") Q 0
- S XVAL=@XTMLARR@(.07,"I") I (XVAL="M")!(XVAL="P") S XTLOGINP(NAMEFLD,"OUTTYPE")=XVAL,XTLOGINP(NAMEFLD,"OUTSPECS")=@XTMLARR@(.08,"I")
+ ; Following change made to make different fields for print or mail at request of DBA for files
+ ;S XVAL=@XTMLARR@(.07,"I") I (XVAL="M")!(XVAL="P") S XTLOGINP(NAMEFLD,"OUTTYPE")=XVAL,XTLOGINP(NAMEFLD,"OUTSPECS")=@XTMLARR@(.08,"I") ;121228
+ S XVAL=@XTMLARR@(3.01,"I") I (XVAL="M")!(XVAL="P") S XTLOGINP(NAMEFLD,"OUTTYPE")=XVAL S:XVAL="M" XTLOGINP(NAMEFLD,"OUTSPECS")=@XTMLARR@(3.02,"I") S:XVAL="P" XTLOGINP(NAMEFLD,"OUTSPECS")=@XTMLARR@(3.03,"I") ; 121228
  I @XTMLARR@(.02,"I")="E" Q $$INITEASY($G(@XTMLARR@(.03,"I")),$G(@XTMLARR@(.04,"I")),NAMEFLD,XTLOGLIN,$G(@XTMLARR@(.05,"I")),$G(@XTMLARR@(.06,"I")))
  Q $$INITIAL($NA(@XTMLARR@(1)),NAMEFLD,XTLOGLIN)
  ;

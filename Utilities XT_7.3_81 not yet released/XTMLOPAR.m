@@ -1,5 +1,5 @@
 XTMLOPAR ;JLI/FO-OAK - HANDLE PARSING FOR LOG4M XML CONFIGURATION FILE ;06/07/08  17:05
- ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 22
+ ;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 24
  ;;Per VHA Directive 2004-038, this routine should not be modified
  Q
 ENTRY(XTMNAME,GLOBROOT,RESULTS) ; RESULTS is passed by reference

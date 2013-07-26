@@ -109,7 +109,7 @@ ENTRY3	; Use of CHKTF call to check values that should NOT be equal
 	D CHKTF^XTMUNIT(X'=Y,"indicated 1 and 3 are equal")
 	Q
 	;
-ENTRY4	; Use of the FAIL call to generate a failure message
+ENTRY4	; @TEST - Use of the FAIL call to generate a failure message
 	;
 	S X=1+2 I X'=3 D FAIL^XTMUNIT("System is doing bad addition on 1+2") Q
 	; 
@@ -138,7 +138,6 @@ XTENT	;
 	;;ENTRY1;tests addition of 1 and 1
 	;;ENTRY2;checks active user status
 	;;ENTRY3;
-	;;ENTRY4;example of FAIL^XTMUNIT call
 	Q
 
 -----------------------------------------------------------------------------
@@ -266,7 +265,7 @@ The  entry point EN^XTMUNIT(ROUNAME) starts the unit testing process.  The
 argument is the name of the routine where the testing should be started.  
 That routine must have at least one TAG or entry point and entry points 
 are specified in the line following the tag XTENT as the third semi-colon 
-piece on the line.  
+piece on the line OR it can have tags with @TEST on the comment next to the tag. 
 
 The test is performed on a conditional value by calling the entry point 
 CHKTF^XTMUNIT(testval,messag) with the first argument the conditional test 

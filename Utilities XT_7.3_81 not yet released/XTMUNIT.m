@@ -1,6 +1,9 @@
-XTMUNIT	;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;2013-07-26  12:36 PM
+XTMUNIT	;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;2013-11-27  1:56 PM
 	;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 24
-	;;Per VHA Directive 2004-038, this routine should not be modified
+    ;
+    ; Original by Dr. Joel Ivey
+    ; Contributions by Dr. Sam Habiel
+    ; 
 	; 100622 JLI - corrected typo in comments where XTMUINPT was listed as XTMUINP
 	; 100622 JLI - removed a comment which indicated data could potentially be returned from the called routine
 	;              in the XTMUINPT array.
@@ -11,6 +14,12 @@ XTMUNIT	;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;2013-07-26  12:36
 	;              with a series of ^ embedded disturbed the output reported
 	; 130726 SMH - Fixed SETUP and TEARDOWN so that they run before/after each
 	;              test rather than once. General refactoring.
+    ; 130726 SMH - SETUT initialized IO in case it's not there to $P. Inits vars
+    ;              using DT^DICRW.
+    ; 131217 SMH - Change call in SETUP to S U="^" instead of DT^DICRW
+    ; 131218 SMH - Any checks to $ZE will also check $ZS for GT.M.
+    ; 131218 SMH - Remove calls to %ZISUTL to manage devices to prevent dependence on VISTA.
+    ;              Use XTMUNIT("DEV","OLD") for old devices
 	Q
 	;
 EN(XTMURNAM,XTMUVERB)	; .SR Entry point with primary test routine name, optional 1 for verbose output
@@ -24,12 +33,12 @@ EN(XTMURNAM,XTMUVERB)	; .SR Entry point with primary test routine name, optional
 SETUT	;
 	; VEN/SMH 26JUL2013
 	I '$D(IO) S IO=$P
-	N DIQUIET S DIQUIET=1 D DT^DICRW
+    S U="^"
 	; VEN/SMH 26JUL2013 END
 	;
 	; ZEXCEPT: XTMUNIT  -- NEWED ON ENTRY
 	S XTMUNIT("IO")=IO,XTMUNIT("DEV")="",XTMUNIT("DEVN")="" F  S XTMUNIT("DEVN")=$O(^TMP("XUDEVICE",$J,XTMUNIT("DEVN"))) Q:XTMUNIT("DEVN")=""  I $G(^(XTMUNIT("DEVN"),"IO"))=IO S XTMUNIT("DEV")=^(0) Q
-	I XTMUNIT("DEV")="" S XTMUNIT("DEV")="XTMUNIT DEVICE" D SAVDEV^%ZISUTL(XTMUNIT("DEV"))
+	I XTMUNIT("DEV")="" S XTMUNIT("DEV")="XTMUNIT DEVICE"
 	S XTMUNIT=1 ; set to identify unit test being run check with $$ISUTEST^XTMUNIT()
 	Q
 	;
@@ -254,9 +263,9 @@ ERROR	; record errors
 	I $D(XTMUGUI) D
 	. S XTMUNIT("CNT")=XTMUNIT("CNT")+1
 	. S XTMUERR=XTMUERR+1
-	. S @XTMUNIT("RSLT")@(XTMUNIT("CNT"))=XTMUNIT("LOC")_XTGUISEP_"ERROR"_XTGUISEP_$ZE
+	. S @XTMUNIT("RSLT")@(XTMUNIT("CNT"))=XTMUNIT("LOC")_XTGUISEP_"ERROR"_XTGUISEP_$S(+$SY=47:$ZS,1:$ZE)
 	. Q
-	S $ZE="",$EC=""
+	S @($S(+$SY=47:"$ZS",1:"$ZE")_"="_""""""),$EC=""
 	Q
 	;
 ERROR1	;
@@ -265,20 +274,22 @@ ERROR1	;
 	; ZEXCEPT: XTMUNIT  -- NEWED ON ENTRY
 	S OLDIO=IO,OLDIOFLG=0,OLDIONAM=""
 	I IO'=XTMUNIT("IO") D SETIO(.OLDIOFLG,.OLDIONAM)
-	W !,XTMUNIT("ENT")," - " W:XTMUNIT("NAME")'="" XTMUNIT("NAME")," - Error: " W $ZE,! D
-	. S XTMUNIT("ERRN")=XTMUNIT("ERRN")+1,XTMUERRL(XTMUNIT("ERRN"))=XTMUNIT("NAME"),XTMUERRL(XTMUNIT("FAIL"),"MSG")=$ZE,XTMUERRL(XTMUNIT("FAIL"),"ENTRY")=XTMUNIT("ENT")
+	W !,XTMUNIT("ENT")," - " W:XTMUNIT("NAME")'="" XTMUNIT("NAME")," - Error: " W $S(+$SY=47:$ZS,1:$ZE),! D
+	. S XTMUNIT("ERRN")=XTMUNIT("ERRN")+1,XTMUERRL(XTMUNIT("ERRN"))=XTMUNIT("NAME"),XTMUERRL(XTMUNIT("FAIL"),"MSG")=$S(+$SY=47:$ZS,1:$ZE),XTMUERRL(XTMUNIT("FAIL"),"ENTRY")=XTMUNIT("ENT")
 	. Q
 	I IO'=OLDIO D RESETIO(OLDIOFLG,OLDIONAM)
 	Q
 SETIO(OLDIOFLG,OLDIONAM)	; BOTH PASSED BY REFERENCE
 	; ZEXCEPT: XTMUNIT  -- NEWED ON ENTRY
 	N OLDION S OLDION="" F  S OLDION=$O(^TMP("XUDEVICE",$J,OLDION)) Q:OLDION=""  I $G(^(OLDION,"IO"))=IO S OLDIONAM=^(0),OLDIOFLG=1
-	I 'OLDIOFLG S OLDIONAM="OLD MUNIT DEV" D SAVDEV^%ZISUTL(OLDIONAM)
-	D USE^%ZISUTL(XTMUNIT("DEV"))
+	;I 'OLDIOFLG S OLDIONAM="OLD MUNIT DEV" D SAVDEV^%ZISUTL(OLDIONAM)
+    I 'OLDIOFLG S XTMUNIT("DEV","OLD")=OLDIONAM
+	USE XTMUNIT("DEV")
 	Q
 	;
 RESETIO(OLDIOFLG,OLDIONAM)	;
-	D USE^%ZISUTL(OLDIONAM) I 'OLDIOFLG D RMDEV^%ZISUTL(OLDIONAM)
+	;D USE^%ZISUTL(OLDIONAM) I 'OLDIOFLG D RMDEV^%ZISUTL(OLDIONAM)
+    USE OLDIONAM I 'OLDIOFLG K XTMUNIT("DEV","OLD")
 	Q
 	;
 ISUTEST()	; .SUPPORTED API TO DETERMINE IF CURRENTLY IN UNIT TEST

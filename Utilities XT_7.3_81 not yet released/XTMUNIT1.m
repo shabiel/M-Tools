@@ -1,6 +1,16 @@
-XTMUNIT1	;JLI/FO-OAK-CONTINUATION OF UNIT TEST ROUTINE ;2013-07-26  11:34 AM
+XTMUNIT1	;JLI/FO-OAK-CONTINUATION OF UNIT TEST ROUTINE ; 18 DEC 2013
 	;;7.3;TOOLKIT;**81**;APR 25 1995;Build 24
-	;;Per VHA Directive 2004-038, this routine should not be modified
+    ;
+    ; Original by Dr. Joel Ivey
+    ; Major contributions by Dr. Sam Habiel
+    ;
+    ; Changes:
+    ; 130726 SMH - Moved test collection logic from XTMUNIT to here (multiple places)
+    ; 131218 SMH - dependence on XLFSTR removed
+    ; 131218 SMH - CHEKTEST refactored to use $TEXT instead of ^%ZOSF("LOAD")
+    ; 131218 SMH - CATCHERR now nulls out $ZS if on GT.M
+    ; 
+    ; TODO: find this routine and add to repo.
 	D EN^XTMUNIT("ZZUTXTMU")
 	Q
 	;
@@ -20,34 +30,31 @@ CHEKTEST(ROU,XTMUNIT,XTMUETRY)	; Collect Test list.
 	. S XTMUNIT("ENTN")=XTMUNIT("ENTN")+1,XTMUETRY(XTMUNIT("ENTN"))=$P(XTMUNIT("ELIN"),";",3),XTMUETRY(XTMUNIT("ENTN"),"NAME")=$P(XTMUNIT("ELIN"),";",4)
 	; VEN/SMH - END
 	;
-	; VEN/SMH - This code is far far more complex than it needs to be. Just use $TEXT.
-	; get routine code into a location to check it
-	N CNT,LN,I,DIF,X,XCNP,TMP,LINE
-	S I=$$SETNAMES^XTECGLO(ROU,"") I I<0 Q "-1^Invalid Routine Name"
-	; $$ROU(ROU) used a check of the ROUTINE file for file name
-	; but routines with names longer than the standard always
-	; show up as not found will trap the error instead if not present
-	; I '$$ROU(ROU) Q "-1^Routine Not found" ; JLI 120806
+    ; VEN/SMH - block refactored to use $TEXT instead of ^%ZOSF("LOAD")
+	N I,LINE
+	S I=$L($T(@(U_ROU))) I I<0 Q "-1^Invalid Routine Name"
 	N $ETRAP S $ETRAP="D CATCHERR^XTMUNIT1"
-	S DIF="TMP(",XCNP=0,X=ROU
-	X ^%ZOSF("LOAD")
-	I '$D(TMP(1,0)) Q
-	F I=1:1 Q:'$D(TMP(I,0))  S LINE=TMP(I,0) I $E(LINE)'=" ",$$UP^XLFSTR(LINE)["@TEST" D
+    ;
+    ; Complexity galore: $TEXT loops through routine
+    ; IF tab or space isn't the first character ($C(9,32)) and line contains @TEST
+    ; Load that line as a testing entry point
+	F I=1:1 S LINE=$T(@("+"_I_U_ROU)) Q:LINE=""  I $C(9,32)'[$E(LINE),$$UP(LINE)["@TEST" D
 	. N TAGNAME,CHAR,NPAREN S TAGNAME="",NPAREN=0
 	. F  Q:LINE=""  S CHAR=$E(LINE),LINE=$E(LINE,2,999) Q:CHAR=""  Q:" ("[CHAR  S TAGNAME=TAGNAME_CHAR
 	. ; should be no paren or arguments
 	. I CHAR="(" Q
 	. F  Q:LINE=""  S CHAR=$E(LINE) Q:" ;"'[CHAR  S LINE=$E(LINE,2,999)
-	. I $$UP^XLFSTR($E(LINE,1,5))="@TEST" S LINE=$E(LINE,6,999) D
+	. I $$UP($E(LINE,1,5))="@TEST" S LINE=$E(LINE,6,999) D
 	. . S XTMUNIT("ENTN")=XTMUNIT("ENTN")+1,XTMUETRY(XTMUNIT("ENTN"))=TAGNAME
 	. . F  Q:LINE=""  S CHAR=$E(LINE) Q:CHAR?1AN  S LINE=$E(LINE,2,999)
 	. . S XTMUETRY(XTMUNIT("ENTN"),"NAME")=LINE
-	. . Q
-	. Q
-	Q
+	QUIT
 	;
+    ; VEN/SMH - Is this catch needed anymore?
 CATCHERR	; catch error on trying to load file if it doesn't exist ; JLI 120806
 	S $ZE="",$EC=""
+    I +$SY=47 S $ZS="" ; VEN/SMH fur GT.M.
+    QUIT
 	;
 	; VEN/SMH 26JUL2013 - Moved GETTREE here.
 GETTREE(XTMUROU,XTMULIST)	;
@@ -60,6 +67,7 @@ GETTREE(XTMUROU,XTMULIST)	;
 	. . F XTMUJ=1:1:XTMULIST I XTMUROU(XTMUJ)=XTMURNAM S XTMURNAM="" Q
 	. . I XTMURNAM'="",$T(@("+1^"_XTMURNAM))="" W:'$D(XWBOS) "Referenced routine ",XTMURNAM," not found.",! Q
 	. . S:XTMURNAM'="" XTMULIST=XTMULIST+1,XTMUROU(XTMULIST)=XTMURNAM
-	. . Q
-	. Q
-	Q
+	QUIT
+    ;
+    ; VEN/SMH 17DEC2013 - Remove dependence on VISTA - Uppercase here instead of XLFSTR.
+UP(X)  Q $TR(X,"abcdefghijklmnopqrstuvwxyz","ABCDEFGHIJKLMNOPQRSTUVWXYZ")

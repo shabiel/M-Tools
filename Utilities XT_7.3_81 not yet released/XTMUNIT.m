@@ -1,4 +1,4 @@
-XTMUNIT	;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;2013-11-27  1:56 PM
+XTMUNIT	;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;2014-01-28  1:09 PM
 	;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 24
     ;
     ; Original by Dr. Joel Ivey
@@ -20,9 +20,10 @@ XTMUNIT	;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;2013-11-27  1:56 
     ; 131218 SMH - Any checks to $ZE will also check $ZS for GT.M.
     ; 131218 SMH - Remove calls to %ZISUTL to manage devices to prevent dependence on VISTA.
     ;              Use XTMUNIT("DEV","OLD") for old devices
+    ; 140109 SMH - Add parameter XTMBREAK - Break upon error
 	Q
 	;
-EN(XTMURNAM,XTMUVERB)	; .SR Entry point with primary test routine name, optional 1 for verbose output
+EN(XTMURNAM,XTMUVERB,XTMBREAK)	; .SR Entry point with primary test routine name, optional 1 for verbose output
 	N XTMULIST,XTMUROU,XTMUNIT
 	I $G(XTMUVERB)'=1 S XTMUVERB=0
 	S XTMULIST=1,XTMUROU(XTMULIST)=XTMURNAM
@@ -32,7 +33,7 @@ EN(XTMURNAM,XTMUVERB)	; .SR Entry point with primary test routine name, optional
 	;
 SETUT	;
 	; VEN/SMH 26JUL2013
-	I '$D(IO) S IO=$P
+	I '($D(IO)#2) S IO=$P
     S U="^"
 	; VEN/SMH 26JUL2013 END
 	;
@@ -40,6 +41,9 @@ SETUT	;
 	S XTMUNIT("IO")=IO,XTMUNIT("DEV")="",XTMUNIT("DEVN")="" F  S XTMUNIT("DEVN")=$O(^TMP("XUDEVICE",$J,XTMUNIT("DEVN"))) Q:XTMUNIT("DEVN")=""  I $G(^(XTMUNIT("DEVN"),"IO"))=IO S XTMUNIT("DEV")=^(0) Q
 	I XTMUNIT("DEV")="" S XTMUNIT("DEV")="XTMUNIT DEVICE"
 	S XTMUNIT=1 ; set to identify unit test being run check with $$ISUTEST^XTMUNIT()
+        ;
+        ; ZEXCEPT: XTMBREAK
+        I $G(XTMBREAK) S XTMUNIT("BREAK")=1
 	Q
 	;
 EN1(XTMUROU,XTMULIST)	;
@@ -269,6 +273,7 @@ ERROR	; record errors
 	Q
 	;
 ERROR1	;
+        I $G(XTMUNIT("BREAK")) BREAK  ; if we are asked to break upon error, please do so!
 	N OLDIO,OLDIOFLG,OLDIONAM
 	; ZEXCEPT: XTMUERRL -CREATED IN SETUP, KILLED IN END
 	; ZEXCEPT: XTMUNIT  -- NEWED ON ENTRY
@@ -284,7 +289,7 @@ SETIO(OLDIOFLG,OLDIONAM)	; BOTH PASSED BY REFERENCE
 	N OLDION S OLDION="" F  S OLDION=$O(^TMP("XUDEVICE",$J,OLDION)) Q:OLDION=""  I $G(^(OLDION,"IO"))=IO S OLDIONAM=^(0),OLDIOFLG=1
 	;I 'OLDIOFLG S OLDIONAM="OLD MUNIT DEV" D SAVDEV^%ZISUTL(OLDIONAM)
     I 'OLDIOFLG S XTMUNIT("DEV","OLD")=OLDIONAM
-	USE XTMUNIT("DEV")
+	USE XTMUNIT("IO")
 	Q
 	;
 RESETIO(OLDIOFLG,OLDIONAM)	;

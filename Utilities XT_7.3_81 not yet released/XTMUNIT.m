@@ -1,9 +1,9 @@
-XTMUNIT	;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;2014-01-28  1:09 PM
+XTMUNIT	;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;2014-03-31  12:25 PM
 	;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 24
-    ;
-    ; Original by Dr. Joel Ivey
-    ; Contributions by Dr. Sam Habiel
-    ; 
+	;
+	; Original by Dr. Joel Ivey
+	; Contributions by Dr. Sam Habiel
+	; 
 	; 100622 JLI - corrected typo in comments where XTMUINPT was listed as XTMUINP
 	; 100622 JLI - removed a comment which indicated data could potentially be returned from the called routine
 	;              in the XTMUINPT array.
@@ -14,13 +14,14 @@ XTMUNIT	;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;2014-01-28  1:09 
 	;              with a series of ^ embedded disturbed the output reported
 	; 130726 SMH - Fixed SETUP and TEARDOWN so that they run before/after each
 	;              test rather than once. General refactoring.
-    ; 130726 SMH - SETUT initialized IO in case it's not there to $P. Inits vars
-    ;              using DT^DICRW.
-    ; 131217 SMH - Change call in SETUP to S U="^" instead of DT^DICRW
-    ; 131218 SMH - Any checks to $ZE will also check $ZS for GT.M.
-    ; 131218 SMH - Remove calls to %ZISUTL to manage devices to prevent dependence on VISTA.
-    ;              Use XTMUNIT("DEV","OLD") for old devices
-    ; 140109 SMH - Add parameter XTMBREAK - Break upon error
+	; 130726 SMH - SETUT initialized IO in case it's not there to $P. Inits vars
+	;              using DT^DICRW.
+	; 131217 SMH - Change call in SETUP to S U="^" instead of DT^DICRW
+	; 131218 SMH - Any checks to $ZE will also check $ZS for GT.M.
+	; 131218 SMH - Remove calls to %ZISUTL to manage devices to prevent dependence on VISTA.
+	;              Use XTMUNIT("DEV","OLD") for old devices
+	; 140109 SMH - Add parameter XTMBREAK - Break upon error
+        ; 1402   SMH - Break will cause the break to happen even on failed tests.
 	Q
 	;
 EN(XTMURNAM,XTMUVERB,XTMBREAK)	; .SR Entry point with primary test routine name, optional 1 for verbose output
@@ -34,16 +35,16 @@ EN(XTMURNAM,XTMUVERB,XTMBREAK)	; .SR Entry point with primary test routine name,
 SETUT	;
 	; VEN/SMH 26JUL2013
 	I '($D(IO)#2) S IO=$P
-    S U="^"
+	S U="^"
 	; VEN/SMH 26JUL2013 END
 	;
 	; ZEXCEPT: XTMUNIT  -- NEWED ON ENTRY
-	S XTMUNIT("IO")=IO,XTMUNIT("DEV")="",XTMUNIT("DEVN")="" F  S XTMUNIT("DEVN")=$O(^TMP("XUDEVICE",$J,XTMUNIT("DEVN"))) Q:XTMUNIT("DEVN")=""  I $G(^(XTMUNIT("DEVN"),"IO"))=IO S XTMUNIT("DEV")=^(0) Q
+	S XTMUNIT("IO")=$PRINCIPAL,XTMUNIT("DEV")="",XTMUNIT("DEVN")="" F  S XTMUNIT("DEVN")=$O(^TMP("XUDEVICE",$J,XTMUNIT("DEVN"))) Q:XTMUNIT("DEVN")=""  I $G(^(XTMUNIT("DEVN"),"IO"))=IO S XTMUNIT("DEV")=^(0) Q
 	I XTMUNIT("DEV")="" S XTMUNIT("DEV")="XTMUNIT DEVICE"
 	S XTMUNIT=1 ; set to identify unit test being run check with $$ISUTEST^XTMUNIT()
-        ;
-        ; ZEXCEPT: XTMBREAK
-        I $G(XTMBREAK) S XTMUNIT("BREAK")=1
+	;
+	; ZEXCEPT: XTMBREAK
+	I $G(XTMBREAK) S XTMUNIT("BREAK")=1
 	Q
 	;
 EN1(XTMUROU,XTMULIST)	;
@@ -159,6 +160,7 @@ CHKTF(XTSTVAL,XTERMSG)	; Entry point for checking True or False values
 	. I IO'=XTMUNIT("IO") D SETIO(.OLDIOFLG,.OLDIONAM)
 	. I 'XTSTVAL W !,XTMUNIT("ENT")," - " W:XTMUNIT("NAME")'="" XTMUNIT("NAME")," - " D
 	. . W XTERMSG,! S XTMUNIT("FAIL")=XTMUNIT("FAIL")+1,XTMUERRL(XTMUNIT("FAIL"))=XTMUNIT("NAME"),XTMUERRL(XTMUNIT("FAIL"),"MSG")=XTERMSG,XTMUERRL(XTMUNIT("FAIL"),"ENTRY")=XTMUNIT("ENT")
+	    . . I $D(XTMUNIT("BREAK")) BREAK  ; Break upon failure
 	. . Q
 	. E  W "."
 	. I OLDIO'=IO D RESETIO(OLDIOFLG,OLDIONAM)
@@ -180,6 +182,7 @@ CHKEQ(XTEXPECT,XTACTUAL,XTERMSG)	; Entry point for checking values to see if the
 	. I IO'=XTMUNIT("IO") D SETIO(.OLDIOFLG,.OLDIONAM)
 	. I XTEXPECT'=XTACTUAL W !,XTMUNIT("ENT")," - " W:XTMUNIT("NAME")'="" XTMUNIT("NAME")," - " W FAILMSG,XTERMSG,! D
 	. . S XTMUNIT("FAIL")=XTMUNIT("FAIL")+1,XTMUERRL(XTMUNIT("FAIL"))=XTMUNIT("NAME"),XTMUERRL(XTMUNIT("FAIL"),"MSG")=XTERMSG,XTMUERRL(XTMUNIT("FAIL"),"ENTRY")=XTMUNIT("ENT")
+	    . . I $D(XTMUNIT("BREAK")) BREAK  ; Break upon failure
 	. . Q
 	. E  W "."
 	. I OLDIO'=IO D RESETIO(OLDIOFLG,OLDIONAM)
@@ -273,7 +276,7 @@ ERROR	; record errors
 	Q
 	;
 ERROR1	;
-        I $G(XTMUNIT("BREAK")) BREAK  ; if we are asked to break upon error, please do so!
+	    I $G(XTMUNIT("BREAK")) BREAK  ; if we are asked to break upon error, please do so!
 	N OLDIO,OLDIOFLG,OLDIONAM
 	; ZEXCEPT: XTMUERRL -CREATED IN SETUP, KILLED IN END
 	; ZEXCEPT: XTMUNIT  -- NEWED ON ENTRY
@@ -288,13 +291,13 @@ SETIO(OLDIOFLG,OLDIONAM)	; BOTH PASSED BY REFERENCE
 	; ZEXCEPT: XTMUNIT  -- NEWED ON ENTRY
 	N OLDION S OLDION="" F  S OLDION=$O(^TMP("XUDEVICE",$J,OLDION)) Q:OLDION=""  I $G(^(OLDION,"IO"))=IO S OLDIONAM=^(0),OLDIOFLG=1
 	;I 'OLDIOFLG S OLDIONAM="OLD MUNIT DEV" D SAVDEV^%ZISUTL(OLDIONAM)
-    I 'OLDIOFLG S XTMUNIT("DEV","OLD")=OLDIONAM
+	I 'OLDIOFLG S XTMUNIT("DEV","OLD")=OLDIONAM
 	USE XTMUNIT("IO")
 	Q
 	;
 RESETIO(OLDIOFLG,OLDIONAM)	;
 	;D USE^%ZISUTL(OLDIONAM) I 'OLDIOFLG D RMDEV^%ZISUTL(OLDIONAM)
-    USE OLDIONAM I 'OLDIOFLG K XTMUNIT("DEV","OLD")
+	USE OLDIONAM I 'OLDIOFLG K XTMUNIT("DEV","OLD")
 	Q
 	;
 ISUTEST()	; .SUPPORTED API TO DETERMINE IF CURRENTLY IN UNIT TEST

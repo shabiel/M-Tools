@@ -1,4 +1,4 @@
-XTMUNIT	;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;2014-03-31  12:25 PM
+XTMUNIT	;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;2014-04-02  10:51 PM
 	;;7.3;TOOLKIT;**81**;Apr 25, 1995;Build 24
 	;
 	; Original by Dr. Joel Ivey
@@ -21,7 +21,16 @@ XTMUNIT	;OAKLAND OIFO/JLI - MUNIT UNIT TESTING FOR M ROUTINES ;2014-03-31  12:25
 	; 131218 SMH - Remove calls to %ZISUTL to manage devices to prevent dependence on VISTA.
 	;              Use XTMUNIT("DEV","OLD") for old devices
 	; 140109 SMH - Add parameter XTMBREAK - Break upon error
-        ; 1402   SMH - Break will cause the break to happen even on failed tests.
+	; 1402   SMH - Break will cause the break to happen even on failed tests.
+	; 140401 SMH - Added Succeed entry point for take it into your hands tester.
+	; 140401 SMH - Reformatted the output of M-Unit so that the test's name
+	;              will print BEFORE the execution of the test. This has been
+	;              really confusing for beginning users of M-Unit, so this was
+	;              necessary.
+	; 140401 SMH - OK message gets printed at the end of --- as [OK].
+	; 140401 SMH - FAIL message now prints. Previously, OK failed to be printed.
+	;              Unfortunately, that's rather passive aggressive. Now it
+	;              explicitly says that a test failed.
 	Q
 	;
 EN(XTMURNAM,XTMUVERB,XTMBREAK)	; .SR Entry point with primary test routine name, optional 1 for verbose output
@@ -99,7 +108,7 @@ EN1(XTMUROU,XTMULIST)	;
 	. ;
 	. ; == THIS FOR/DO BLOCK IS THE CENTRAL TEST RUNNER ==
 	. S XTMUI=0
-	. F  S XTMUI=$O(XTMUETRY(XTMUI)) Q:XTMUI'>0  S XTMUNIT("ENUM")=XTMUNIT("ERRN")+XTMUNIT("FAIL") D  I XTMUVERB,'$D(XTMUGUI),XTMUNIT("ENUM")=(XTMUNIT("ERRN")+XTMUNIT("FAIL")) D VERBOSE(.XTMUETRY,XTMUI)
+	. F  S XTMUI=$O(XTMUETRY(XTMUI)) Q:XTMUI'>0  S XTMUNIT("ENUM")=XTMUNIT("ERRN")+XTMUNIT("FAIL") D  
 	. . N $ETRAP S $ETRAP="D ERROR^XTMUNIT"
 	. . ; 
 	. . ; Run Set-up Code (only if present)
@@ -111,12 +120,20 @@ EN1(XTMUROU,XTMULIST)	;
 	. . S XTMUNIT("ECNT")=XTMUNIT("ECNT")+1
 	. . S XTMUNIT("NAME")=XTMUETRY(XTMUI,"NAME")
 	. . S XTMUNIT("ENT")=XTMUETRY(XTMUI)_"^"_XTMUROU(XTMUNIT("CURR"))
+	. . I XTMUVERB,'$D(XTMUGUI) D VERBOSE1(.XTMUETRY,XTMUI) ; Say what we executed.
 	. . D @XTMUNIT("ENT")
 	. . ;
 	. . ; Run Teardown Code (only if present)
 	. . S XTMUNIT("ENT")=$G(XTMUNIT("TEARDOWN"))
 	. . S XTMUNIT("NAME")="Teardown Code"
 	. . D:XTMUNIT("ENT")]"" @XTMUNIT("ENT")
+	. . ;
+	. . ; ENUM = Number of errors + failures
+	. . ; Only print out the success message [OK] If our error number remains
+	. . ; the same as when we started the loop.
+	. . I XTMUVERB,'$D(XTMUGUI) D
+	. . . I XTMUNIT("ENUM")=(XTMUNIT("ERRN")+XTMUNIT("FAIL")) D VERBOSE(.XTMUETRY,XTMUI,1) I 1
+	. . . E  D VERBOSE(.XTMUETRY,XTMUI,0)
 	. ;
 	. ;
 	. ; keep a XTMUCNT of number of entry points executed across all routines
@@ -139,15 +156,26 @@ EN1(XTMUROU,XTMULIST)	;
 	I OLDIO'=IO D RESETIO(OLDIOFLG,OLDIONAM)
 	Q
 	; -- end EN1
-VERBOSE(XTMUETRY,XTMUI)	;
+VERBOSE(XTMUETRY,XTMUI,SUCCESS)	; Say whether we succeeded or failed.
 	N OLDIO,OLDIOFLG,OLDIONAM
 	; ZEXCEPT: XTMUNIT - NEWED IN EN
 	S OLDIO=IO,OLDIOFLG=0,OLDIONAM=""
 	I IO'=XTMUNIT("IO") D SETIO(.OLDIOFLG,.OLDIONAM)
-	W !,"OK - ",XTMUETRY(XTMUI) I $G(XTMUETRY(XTMUI,"NAME"))'="" W " - ",XTMUETRY(XTMUI,"NAME")
+	N I F I=$X+3:1:73 W "-"
+	W ?73
+	I $G(SUCCESS) W "[OK]"
+	E  W "[FAIL]"
 	IF OLDIO'=IO D RESETIO(OLDIOFLG,OLDIONAM)
 	Q
 	;
+VERBOSE1(XTMUETRY,XTMUI)	; Print out the entry point info
+	N OLDIO,OLDIOFLG,OLDIONAM
+	; ZEXCEPT: XTMUNIT - NEWED IN EN
+	S OLDIO=IO,OLDIOFLG=0,OLDIONAM=""
+	I IO'=XTMUNIT("IO") D SETIO(.OLDIOFLG,.OLDIONAM)
+	W !,XTMUETRY(XTMUI) I $G(XTMUETRY(XTMUI,"NAME"))'="" W " - ",XTMUETRY(XTMUI,"NAME")
+	IF OLDIO'=IO D RESETIO(OLDIOFLG,OLDIONAM)
+	Q
 CHKTF(XTSTVAL,XTERMSG)	; Entry point for checking True or False values
 	N OLDIO,OLDIOFLG,OLDIONAM
 	; ZEXCEPT: XTMUERRL,XTMUGUI - CREATED IN SETUP, KILLED IN END
@@ -201,11 +229,25 @@ FAIL(XTERMSG)	; Entry point for generating a failure message
 	. I IO'=XTMUNIT("IO") D SETIO(.OLDIOFLG,.OLDIONAM)
 	. W !,XTMUNIT("ENT")," - " W:XTMUNIT("NAME")'="" XTMUNIT("NAME")," - " W XTERMSG,! D
 	. . S XTMUNIT("FAIL")=XTMUNIT("FAIL")+1,XTMUERRL(XTMUNIT("FAIL"))=XTMUNIT("NAME"),XTMUERRL(XTMUNIT("FAIL"),"MSG")=XTERMSG,XTMUERRL(XTMUNIT("FAIL"),"ENTRY")=XTMUNIT("ENT")
+	. . I $D(XTMUNIT("BREAK")) BREAK  ; Break upon failure
 	. . Q
 	. I OLDIO'=IO D RESETIO(OLDIOFLG,OLDIONAM)
 	. Q
 	I $D(XTMUGUI) S XTMUNIT("CNT")=XTMUNIT("CNT")+1,@XTMUNIT("RSLT")@(XTMUNIT("CNT"))=XTMUNIT("LOC")_XTGUISEP_"FAILURE"_XTGUISEP_XTERMSG
 	Q
+SUCCEED	; Entry point for forcing a success (Thx David Whitten)
+	; ZEXCEPT: XTMUERRL,XTMUGUI - CREATED IN SETUP, KILLED IN END
+	; ZEXCEPT: XTMUNIT - NEWED IN EN
+	; Switch IO and write out the dot for activity
+	I '$D(XTMUGUI) D
+	. S OLDIO=IO,OLDIOFLG=0,OLDIONAM=""
+	. I IO'=XTMUNIT("IO") D SETIO(.OLDIOFLG,.OLDIONAM)
+	. W "."
+	. I OLDIO'=IO D RESETIO(OLDIOFLG,OLDIONAM)
+	;
+	; Increment test counter
+	S XTMUNIT("CHK")=XTMUNIT("CHK")+1
+	QUIT
 	;
 CHKLEAKS(XTMUCODE,XTMULOC,XTMUINPT)	; functionality to check for variable leaks on executing a section of code
 	; XTMUCODE - A string that specifies the code that is to be XECUTED and checked for leaks.

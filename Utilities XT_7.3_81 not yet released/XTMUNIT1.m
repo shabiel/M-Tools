@@ -1,4 +1,4 @@
-XTMUNIT1    ;JLI/FO-OAK-CONTINUATION OF UNIT TEST ROUTINE ;2014-01-28  2:27 PM
+XTMUNIT1    ;JLI/FO-OAK-CONTINUATION OF UNIT TEST ROUTINE ;2014-04-01  12:53 PM
     ;;7.3;TOOLKIT;**81**;APR 25 1995;Build 24
     ;
     ; Original by Dr. Joel Ivey
@@ -23,13 +23,9 @@ CHEKTEST(ROU,XTMUNIT,XTMUETRY)  ; Collect Test list.
     ; - @TEST on labellines
     ; - Offsets of XTENT
     ;
-    ; NB: VEN/SMH - first block moved from XTMUNIT
     S XTMUNIT("ENTN")=0 ; Number of test, sub to XTMUETRY.
     ;
-    F XTMUI=1:1 S XTMUNIT("ELIN")=$T(@("XTENT+"_XTMUI_"^"_XTMUROU(XTMUNIT("CURR")))) Q:$P(XTMUNIT("ELIN"),";",3)=""  D
-    . S XTMUNIT("ENTN")=XTMUNIT("ENTN")+1,XTMUETRY(XTMUNIT("ENTN"))=$P(XTMUNIT("ELIN"),";",3),XTMUETRY(XTMUNIT("ENTN"),"NAME")=$P(XTMUNIT("ELIN"),";",4)
-    ; VEN/SMH - END
-    ;
+    ; This stanza and everything below is for collecting @TEST.
     ; VEN/SMH - block refactored to use $TEXT instead of ^%ZOSF("LOAD")
     N I,LINE
     S I=$L($T(@(U_ROU))) I I<0 Q "-1^Invalid Routine Name"
@@ -48,6 +44,13 @@ CHEKTEST(ROU,XTMUNIT,XTMUETRY)  ; Collect Test list.
     . . S XTMUNIT("ENTN")=XTMUNIT("ENTN")+1,XTMUETRY(XTMUNIT("ENTN"))=TAGNAME
     . . F  Q:LINE=""  S CHAR=$E(LINE) Q:CHAR?1AN  S LINE=$E(LINE,2,999)
     . . S XTMUETRY(XTMUNIT("ENTN"),"NAME")=LINE
+    ;
+    ;
+    ;
+    ; This Stanza is to collect XTENT offsets
+    N XTMUI F XTMUI=1:1 S XTMUNIT("ELIN")=$T(@("XTENT+"_XTMUI_"^"_XTMUROU(XTMUNIT("CURR")))) Q:$P(XTMUNIT("ELIN"),";",3)=""  D
+    . S XTMUNIT("ENTN")=XTMUNIT("ENTN")+1,XTMUETRY(XTMUNIT("ENTN"))=$P(XTMUNIT("ELIN"),";",3),XTMUETRY(XTMUNIT("ENTN"),"NAME")=$P(XTMUNIT("ELIN"),";",4)
+    ;
     QUIT
     ;
     ; VEN/SMH - Is this catch needed anymore?

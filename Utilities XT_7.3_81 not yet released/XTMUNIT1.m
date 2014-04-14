@@ -1,4 +1,4 @@
-XTMUNIT1    ;JLI/FO-OAK-CONTINUATION OF UNIT TEST ROUTINE ;2014-04-01  12:53 PM
+XTMUNIT1    ;JLI/FO-OAK-CONTINUATION OF UNIT TEST ROUTINE ;2014-04-14  9:43 PM
     ;;7.3;TOOLKIT;**81**;APR 25 1995;Build 24
     ;
     ; Original by Dr. Joel Ivey
@@ -74,3 +74,83 @@ GETTREE(XTMUROU,XTMULIST)   ;
     ;
     ; VEN/SMH 17DEC2013 - Remove dependence on VISTA - Uppercase here instead of XLFSTR.
 UP(X)  Q $TR(X,"abcdefghijklmnopqrstuvwxyz","ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    ;
+COV(NMSP) ; Coverage calculations
+    Q:'+$SY=47  ; GT.M only!
+    ;
+    N %ZR
+    D SILENT^%RSEL(NMSP,"SRC")
+    ;
+    N RN S RN=""
+    F  S RN=$O(%ZR(RN)) Q:RN=""  W RN,! D
+    . N L2 S L2=$T(+2^@RN)
+    . S L2=$TR(L2,$C(9,32)) ; Translate spaces and tabs out
+    . I $E(L2,1,2)'=";;" K %ZR(RN)  ; Not a human produced routine
+    ;
+    N RTNS M RTNS=%ZR
+    K %ZR
+    ;
+    N GL
+    S GL=$NA(^TMP("XTMCOVCOHORT",$J))
+    K @GL
+    ;
+    D RTNANAL(.RTNS,GL)
+    W !,$$ACTLINES($NA(^TMP("XTMCOVCOHORT",$J)))
+    ;
+    VIEW "TRACE":1:"^TMP(""XTMCOVRESULT"",$J)"
+    D ^A1AEUT1
+    D ^A1AEK2MT
+    VIEW "TRACE":0:"^TMP(""XTMCOVRESULT"",$J)"
+    D COVCOV($NA(^TMP("XTMCOVCOHORT",$J)),$NA(^TMP("XTMCOVRESULT",$J)))
+    W !,$$ACTLINES($NA(^TMP("XTMCOVCOHORT",$J)))
+    QUIT
+    ;
+RTNANAL(RTNS,GL) ; Routine Analysis
+    ; Create a global similar to the trace global produced by GT.M in GL
+    ; Only non-comment lines are stored.
+    ; A tag is always stored. Tag,0 is stored only if there is code on the tag line (format list or actual code).
+    ; tags by themselves don't count toward the total.
+    ;
+    N RTN S RTN=""
+    F  S RTN=$O(RTNS(RTN)) Q:RTN=""  D                       ; for each routine
+    . N TAG
+    . S TAG=RTN                                              ; start the tags at the first
+    . N I,LN F I=2:1 S LN=$T(@TAG+I^@RTN) Q:LN=""  D         ; for each line, starting with the 3rd line (2 off the first tag)
+    . . I $E(LN)?1A D  QUIT                                  ; formal line
+    . . . N T                                                ; Terminator
+    . . . N J F J=1:1:$L(LN) S T=$E(LN,J) Q:T'?1AN           ; Loop to...
+    . . . S TAG=$E(LN,1,J-1)                                 ; Get tag
+    . . . S @GL@(RTN,TAG)=TAG                                ; store line
+    . . . I T="(" S @GL@(RTN,TAG,0)=LN                       ; formal list
+    . . . E  D                                               ; No formal list
+    . . . . N LNTR S LNTR=$P(LN,TAG,2,999),LNTR=$TR(LNTR,$C(9,32)) ; Get rest of line, Remove spaces and tabs
+    . . . . I $E(LNTR)=";" QUIT                              ; Comment
+    . . . . S @GL@(RTN,TAG,0)=LN                             ; Otherwise, store for testing
+    . . . S I=0                                              ; Start offsets from zero (first one at the for will be 1)
+    . . I $C(32,9)[$E(LN) D  QUIT                            ; Regular line
+    . . . N LNTR S LNTR=$TR(LN,$C(32,9))                     ; Remove all spaces and tabs
+    . . . I $E(LNTR)=";" QUIT                                ; Comment line -- don't want.
+    . . . S @GL@(RTN,TAG,I)=LN                               ; Record line
+    QUIT
+    ;
+ACTLINES(GL) ; $$ ; Count active lines
+    ;
+    N CNT S CNT=0
+    N REF S REF=GL
+    N GLQL S GLQL=$QL(GL)
+    F  S REF=$Q(@REF) Q:REF=""  Q:(GL'=$NA(@REF,GLQL))  D
+    . N REFQL S REFQL=$QL(REF)
+    . N LASTSUB S LASTSUB=$QS(REF,REFQL)
+    . I LASTSUB?1.N S CNT=CNT+1
+    QUIT CNT
+    ;
+COVCOV(C,R) ; Analyze coverage Cohort vs Result
+    N RTN S RTN=""
+    F  S RTN=$O(@C@(RTN)) Q:RTN=""  D  ; For each routine in cohort set
+    . I '$D(@R@(RTN)) QUIT             ; Not present in result set
+    . N TAG S TAG=""
+    . F  S TAG=$O(@R@(RTN,TAG)) Q:TAG=""  D  ; For each tag in the routine in the result set
+    . . N LN S LN=""
+    . . F  S LN=$O(@R@(RTN,TAG,LN)) Q:LN=""  D  ; for each line in the tag in the routine in the result set
+    . . . I $D(@C@(RTN,TAG,LN)) K ^(LN)  ; if present in cohort, kill off
+    QUIT

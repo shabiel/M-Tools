@@ -1,6 +1,8 @@
 XTMUNITT ; VEN/SMH - Testing routines for M-Unit;2014-04-01  2:04 PM
  ;;7.3;KERNEL TOOLKIT;
  ;
+ ; THIS ROUTINE IS THE UNIFIED UNIT TESTER FOR ALL OF M-UNIT.
+ ; 
  ; Dear Users,
  ;
  ; I know about about the irony of a test suite for the testing suite,
@@ -10,7 +12,7 @@ XTMUNITT ; VEN/SMH - Testing routines for M-Unit;2014-04-01  2:04 PM
  ;
  ; Sam H
  ;
- D EN^XTMUNIT($T(+0),1) ; Run tests here, be verbose, and break on errors.
+ D EN^XTMUNIT($T(+0),1) ; Run tests here, be verbose.
  QUIT
  ;
 STARTUP ; M-Unit Start-Up - This runs before anything else.
@@ -66,8 +68,38 @@ T6 ; ditto
  D CHKEQ(XTMUNIT("CHK"),TESTCOUNT+2,"Succeed should increment the number of tests")
  QUIT
  ;
+T7 ; Make sure we write to principal even though we are on another device
+ ; This is a rather difficult test to carry out for GT.M and Cache... 
+ N D
+ I +$SY=47 S D="/tmp/test.txt" ; All GT.M ; VMS not supported.
+ I +$SY=0 D  ; All Cache
+ . I $ZVERSION(1)=2 S D=$SYSTEM.Util.GetEnviron("temp")_"\test.txt" I 1 ; Windows 
+ . E  S D ="/tmp/test.txt" ; not windows; VMS not supported.
+ I +$SY=0 O D:"NWS" ; Cache new file
+ I +$SY=47 O D:(newversion) ; GT.M new file
+ U D
+ WRITE "HELLO",!
+ WRITE "HELLO",! 
+ C D
  ;
+ ; Now open back the file, and read the hello, but open in read only so 
+ ; M-Unit will error out if it will write something out there.
  ;
+ ; Per VISTA conventions, current IO device should be IO, old is IO(0).
+ ;
+ I +$SY=0 O D:"R"
+ I +$SY=47 O D:(readonly)
+ U D 
+ N X READ X:1
+ D CHKTF(X="HELLO")  ; This should write to the screen the dot not to the file.
+ D CHKTF(($$LO($IO)=$$LO(D)),"IO device didn't get reset back")       ; $$LO is b/c of a bug in Cache/Windows. $IO is not the same cas D. 
+ I +$SY=0 C D:"D"
+ I +$SY=47 C D:(delete)
+ U $P
+ S IO=$IO 
+ QUIT
+ ;
+LO(X) Q $TR(X,"ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz")
  ; Shortcut methods for M-Unit
 CHKTF(X,Y)   D CHKTF^XTMUNIT(X,$G(Y))   QUIT
 CHKEQ(A,B,M) D CHKEQ^XTMUNIT(A,B,$G(M)) QUIT
@@ -76,5 +108,7 @@ XTENT ; Entry points
  ;;T4;Entry point using XTMENT
  ;;T5;Error count check
  ;;T6;Succeed Entry Point
+ ;;T7;Make sure we write to principal even though we are on another device
 XTROU ; Routines containing additional tests
  ;;XTMUNITU
+ ;;XTMUNITW

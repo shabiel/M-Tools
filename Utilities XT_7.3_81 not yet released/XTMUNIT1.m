@@ -88,7 +88,7 @@ COV(NMSP,COVCODE,VERBOSITY) ; VEN/SMH - PUBLIC ENTRY POINT; Coverage calculation
     ;    - 2 = Break down by routine and tag
     ;    - 3 = Break down by routine and tag, and print lines that didn't execute for each tag.
     ;
-    Q:'+$SY=47  ; GT.M only!
+    Q:'(+$SY=47)  ; GT.M only!
     ;
     S VERBOSITY=+$G(VERBOSITY) ; Get 0 if not passed.
     N %ZR ; GT.M specific

@@ -99,6 +99,28 @@ T7 ; Make sure we write to principal even though we are on another device
  S IO=$IO 
  QUIT
  ;
+T8 ; If IO starts with another device, write to that device as if it's the pricipal device
+ N D
+ I +$SY=47 S D="/tmp/test.txt" ; All GT.M ; VMS not supported.
+ I +$SY=0 D  ; All Cache
+ . I $ZVERSION(1)=2 S D=$SYSTEM.Util.GetEnviron("temp")_"\test.txt" I 1 ; Windows 
+ . E  S D ="/tmp/test.txt" ; not windows; VMS not supported.
+ I +$SY=0 O D:"NWS" ; Cache new file
+ I +$SY=47 O D:(newversion) ; GT.M new file
+ S IO=D 
+ U D
+ D ^XTMUNITW ; Run some Unit Tests
+ C D
+ I +$SY=0 O D:"R" ; Cache read only
+ I +$SY=47 O D:(readonly) ; GT.M read only
+ U D
+ N X,Y R X:1,Y:1
+ I +$SY=0 C D:"D"
+ I +$SY=47 C D:(delete)
+ D CHKTF(Y["MAIN")
+ S IO=$P 
+ QUIT
+ ; 
 LO(X) Q $TR(X,"ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz")
  ; Shortcut methods for M-Unit
 CHKTF(X,Y)   D CHKTF^XTMUNIT(X,$G(Y))   QUIT
@@ -109,6 +131,8 @@ XTENT ; Entry points
  ;;T5;Error count check
  ;;T6;Succeed Entry Point
  ;;T7;Make sure we write to principal even though we are on another device
-XTROU ; Routines containing additional tests
+ ;;T8;If IO starts with another device, write to that device as if it's the pricipal device
+ ;
+ XTROU ; Routines containing additional tests
  ;;XTMUNITU
  ;;XTMUNITW

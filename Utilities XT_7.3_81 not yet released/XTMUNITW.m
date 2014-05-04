@@ -5,6 +5,7 @@ XTMUNITW ; VEN/SMH - Coverage Test Runner;2014-04-17  3:30 PM
  D EN^XTMUNIT($T(+0),1) QUIT
  ;
 MAIN ; @TEST - Test coverage calculations
+ Q:'(+$SY=47)  ; GT.M ONLY
  D COV^XTMUNIT1("XTMUNITV","D EN^XTMUNIT(""XTMUNITV"",1)",-1)  ; Only produce output global.
  D CHKEQ^XTMUNIT(^TMP("XTMCOVREPORT",$J),"15/20")
  D CHKEQ^XTMUNIT(^TMP("XTMCOVREPORT",$J,"XTMUNITV","INTERNAL"),"3/6")

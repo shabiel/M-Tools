@@ -256,10 +256,10 @@ SAVEARR(IN,OUT) ; .SR
  N XTLOGLIN S XTLOGLIN=$P($STACK($STACK-1,"PLACE")," ")
  S XTLOGINF("PRIORITY")="DEBUG"
  I $D(OUT) M @OUT=@IN QUIT
- D LOG(,5,XTLOGLIN,IN)
+ D LOG(,5,XTLOGLIN,IN,,1)
  ;
  ;
-LOG(MESG,SET,XTLOGLIN,VARS,XTMLOARR) ; .SR  entry point for logging an item
+LOG(MESG,SET,XTLOGLIN,VARS,XTMLOARR,SAVE) ; .SR  entry point for logging an item
  ; this will be ignored unless SETUP^XTMLOG has been called previously
  ; MESG - any text that should be recorded for the current location
  ;        (Required)
@@ -273,6 +273,7 @@ LOG(MESG,SET,XTLOGLIN,VARS,XTMLOARR) ; .SR  entry point for logging an item
  ;       input data might be logged in set 1, values associated with a
  ;       process might be set 2, etc. Specific sets that are active are
  ;       specified through the SET parameter in the SETUP call.
+ ; SAVE - If we want to save the array in a global or just print it out.
  ;
  I '$D(XTLOGINP) Q
  N APPENDID,APPNAME,APPTYPE,NAME,XTMECNT,XTMGLOB
@@ -291,6 +292,7 @@ LOG(MESG,SET,XTLOGLIN,VARS,XTMLOARR) ; .SR  entry point for logging an item
  . S XTLOGINF("PRIORITY")=$S($D(SET):$P("FATAL^ERROR^WARN^INFO^DEBUG",U,SET),1:"    ")
  . S XTLOGINF("$H")=$H,XTLOGINF("LOCATION")=XTLOGLIN
  . S XTLOGINF("COUNT")=XTLOGINP(NAME,"COUNT")
+ . I $G(SAVE) S XTLOGINF("SAVE")=1
  . S APPENDID=""
  . F  S APPENDID=$O(XTLOGINP(NAME,"APPENDER",APPENDID)) Q:APPENDID=""  D
  . . S APPNAME="APPENDER",APPTYPE=XTLOGINP(NAME,APPNAME,APPENDID,"TYPE")

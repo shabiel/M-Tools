@@ -248,6 +248,17 @@ FATAL(MESG,VARS,XTMLOARR) ; .SR
  D LOG(MESG,1,XTLOGLIN,$G(VARS),$G(XTMLOARR))
  Q
  ;
+ ; VEN/SMH - EP to save arrays... don't know whether this will work yet
+SAVEARR(IN,OUT) ; .SR
+ ; ZEXCEPT: XTLOGINP - CREATED IN INITIAL, KILLED IN ENDLOG
+ I '$D(XTLOGINP) Q
+ N XTLOGINF
+ N XTLOGLIN S XTLOGLIN=$P($STACK($STACK-1,"PLACE")," ")
+ S XTLOGINF("PRIORITY")="DEBUG"
+ I $D(OUT) M @OUT=@IN QUIT
+ D LOG(,5,XTLOGLIN,IN)
+ ;
+ ;
 LOG(MESG,SET,XTLOGLIN,VARS,XTMLOARR) ; .SR  entry point for logging an item
  ; this will be ignored unless SETUP^XTMLOG has been called previously
  ; MESG - any text that should be recorded for the current location

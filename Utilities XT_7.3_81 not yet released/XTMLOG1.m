@@ -254,3 +254,84 @@ RCC(NA) ;Replace control chars in NA with $C( ). Returns encoded string; Public 
  . Q
  Q OUT
  ;
+LOGVIEW ; [Public] View logs interactively in ^XTMP
+ ; ZEXCEPT: DTIME
+ ;
+ ; Select Logging Name in ^XTMP
+ N X,Y,DIC
+ S DIC=8992.7,DIC(0)="AEMQ" D ^DIC
+ Q:(Y<1)
+ ;
+ ; Get the name (the .01 field, thus the 2nd piece of Y)
+ N XTMLSUB S XTMLSUB=$P(Y,U,2)
+ ;
+ ; Get a user for whom we are logging. This is a CPU intensive operation. I need to figure out how to speed it up.
+ K X,Y,DIC
+ S DIC=200,DIC(0)="AEMQ",DIC("S")="I $D(^XTMP(XTMLSUB,Y))" D ^DIC
+ Q:(Y<1)
+ S Y=+Y
+ ;
+ ; Select date/time. Right now this has many problems. Need to be refactored to use ^TMP with a Fileman data structure so that we can use ^DIC
+ N DONE S DONE=0
+ F  D  Q:DONE
+ . W ! R "Select a date/time: ",X:$G(DTIME,300)
+ . I X="^" S DONE=1 QUIT
+ . I X=" " S X=$G(^DISV(DUZ,XTMLSUB)) I 'X QUIT  ; Try again
+ . I X="" QUIT
+ . I X="?" W ! X "N I S I=""""  F  S I=$O(^XTMP(XTMLSUB,Y,I)) Q:I=""""  W I,!" QUIT  ; For inside xexecute so that we can quit on the same line
+ . I +X,$D(^XTMP(XTMLSUB,Y,X)) D  QUIT  ; Success!
+ . . S ^DISV(DUZ,XTMLSUB)=X
+ . . S DONE=1
+ QUIT:'$G(X)  ; If we ^ out, quit.
+ ;
+ ; Now loop through the global.
+ N R S R=$NA(^XTMP(XTMLSUB,Y,X))
+ N I,J,K,L,M,N S (I,J,K,L,M,N)=""
+ F  S I=$O(@R@(I)) Q:I=""  D  ; Job Number
+ . W ?60,"JOB NUMBER: "_I,!
+ . F  S J=$O(@R@(I,J)) Q:J=""  D  ; Log Start Time
+ . . F  S K=$O(@R@(I,J,K)) Q:K=""  D  ; Event counter
+ . . . F  S L=$O(@R@(I,J,K,L)) Q:L=""  D  ; Routine invoking logging
+ . . . . F  S M=$O(@R@(I,J,K,L,M)) Q:M=""  D  ; Log Sub
+ . . . . . I +M W $$GREEN(),^(M),$$RESET,!  ; If numeric, regular event
+ . . . . . E  D SAVEPRT($NA(^(M)))   ; If not, it's a saved off global. Print it in ZWRITE format.
+ QUIT
+SAVEPRT(G) ; [INTERNAL ONLY] Print saved array entry in G
+ N Q S Q="""" ; Quote
+ N N ; Just one var after the N
+ N REF S REF=$QS(G,$QL(G))
+ N REFOPEN S REFOPEN=$$OREF^DILF(REF) ; Make this an open root so we can append to it.
+ N SUBSTR
+ N QSTOP S QSTOP=G
+ N QL S QL=$QL(G)
+ F  S G=$Q(@G)  Q:$NA(@G,QL)'=QSTOP  Q:G=""  D
+ . N SUBSTR S SUBSTR=""
+ . F N=9:1:$QL(G) D
+ . . N SUB S SUB=$QS(G,N) ; Actual sub (no quotes)
+ . . N QSUB S QSUB=$S(SUB=+SUB:SUB,1:Q_SUB_Q)  ; Quote sub (if necessary)
+ . . S SUBSTR=SUBSTR_QSUB_"," ; Append to string
+ . S $E(SUBSTR,$L(SUBSTR))=")" ; remove final comma and replace with )
+ . N REF2PRINT S REF2PRINT=REFOPEN_SUBSTR  ; Actual full global reference in ZWRITE format
+ . N VAL S VAL=@G  ; Value of Subscript 
+ . N QVAL  ; Quoted value (if necessary)
+ . I VAL'=+VAL S QVAL=Q_VAL_Q
+ . E  S QVAL=VAL
+ . W $$YELLOW(),REF2PRINT_"="_QVAL,$$RESET(),!
+ . ; TODO: Unload global into system if the user wants to.
+ QUIT
+ ;
+RED() ; Private
+ Q $C(27)_"[31m"
+GREEN() ; Private
+ Q $C(27)_"[32m"
+YELLOW() ; Private
+ Q $C(27)_"[33m"
+RESET() ; Private
+ Q $C(27)_"[0m"
+ ;
+CLEAR ; [Public] Remove logs
+ N X,Y,DIC
+ S DIC=8992.7,DIC(0)="AEMQ" D ^DIC
+ Q:(Y<1)
+ K ^XTMP($P(Y,U,2))
+ QUIT

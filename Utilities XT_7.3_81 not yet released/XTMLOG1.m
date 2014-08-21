@@ -276,26 +276,39 @@ LOGVIEW ; [Public] View logs interactively in ^XTMP
  F  D  Q:DONE
  . W ! R "Select a date/time: ",X:$G(DTIME,300)
  . I X="^" S DONE=1 QUIT
- . I X=" " S X=$G(^DISV(DUZ,XTMLSUB)) I 'X QUIT  ; Try again
+ . I X=" " S X=$G(^DISV(DUZ,XTMLSUB)) I X="" QUIT  ; Try again
  . I X="" QUIT
  . I X="?" W ! X "N I S I=""""  F  S I=$O(^XTMP(XTMLSUB,Y,I)) Q:I=""""  W I,!" QUIT  ; For inside xexecute so that we can quit on the same line
- . I +X,$D(^XTMP(XTMLSUB,Y,X)) D  QUIT  ; Success!
+ . I +X&($D(^XTMP(XTMLSUB,Y,X)))!(X="ALL") D  QUIT  ; Success!
  . . S ^DISV(DUZ,XTMLSUB)=X
  . . S DONE=1
- QUIT:'$G(X)  ; If we ^ out, quit.
+ QUIT:(X="^"!(X=" ")!(X=""))  ; If we ^ out, quit.
  ;
+ I +X D RUN(X) QUIT
+ I X="ALL" S X="" F  S X=$O(^XTMP(XTMLSUB,Y,X)) Q:X=""  D RUN(X)
+ QUIT
+ ;
+RUN(X) ; Runner
+ N LINE S $P(LINE,"=",80)="="
  ; Now loop through the global.
  N R S R=$NA(^XTMP(XTMLSUB,Y,X))
  N I,J,K,L,M,N S (I,J,K,L,M,N)=""
  F  S I=$O(@R@(I)) Q:I=""  D  ; Job Number
- . W ?60,"JOB NUMBER: "_I,!
+ . W $$BOLD(),$$CJ^XLFSTR("---- JOB NUMBER "_I_" ----",80),$$RESET,!!
  . F  S J=$O(@R@(I,J)) Q:J=""  D  ; Log Start Time
  . . F  S K=$O(@R@(I,J,K)) Q:K=""  D  ; Event counter
  . . . F  S L=$O(@R@(I,J,K,L)) Q:L=""  D  ; Routine invoking logging
  . . . . F  S M=$O(@R@(I,J,K,L,M)) Q:M=""  D  ; Log Sub
- . . . . . I +M W $$GREEN(),^(M),$$RESET,!  ; If numeric, regular event
+ . . . . . I +M D WRITINF(^(M)) I 1  ; If numeric, regular event
  . . . . . E  D SAVEPRT($NA(^(M)))   ; If not, it's a saved off global. Print it in ZWRITE format.
+ . . . W !,$$RED,LINE,$$RESET,!! ; Write divider line before next event
  QUIT
+WRITINF(L) ; [INTERNAL ONLY] Write informational line
+ N TIME S TIME=$P(L," ")
+ N REST S REST=$P(L," ",2,99)
+ W $$BOLD(),TIME,$$RESET(),": ",$$GREEN(),REST,$$RESET(),!
+ QUIT
+ ;
 SAVEPRT(G) ; [INTERNAL ONLY] Print saved array entry in G
  N Q S Q="""" ; Quote
  N N ; Just one var after the N
@@ -328,6 +341,9 @@ YELLOW() ; Private
  Q $C(27)_"[33m"
 RESET() ; Private
  Q $C(27)_"[0m"
+ ;
+BOLD() ; Private
+ Q $C(27)_"[1m"
  ;
 CLEAR ; [Public] Remove logs
  N X,Y,DIC

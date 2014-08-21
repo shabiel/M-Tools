@@ -19,6 +19,7 @@ XTMLOG1 ;jli/fo-oak - handle appender functions for Log4M ;06/07/08  17:06
  ;      of array elements should be displayed if they exist.
  ;
 CONSOLEA(ROOT,INFO,MESSAGE,VARS,XTMLOARR) ;
+ I $G(IO)'=$P U $P
  N GLOBREF,XTMLOGI S GLOBREF=$NA(^TMP("CONSOLEA",$J)) K @GLOBREF
  I $G(INFO("SAVE")) D 
  . W $C(27)_"[32m"
@@ -49,8 +50,19 @@ GLOBAL(ROOT,INFO,MESSAGE,VARS,XTMLOARR) ;
  F XTMLOGI=0:0 S XTMLOGI=$O(@GLOBREF@(XTMLOGI)) Q:XTMLOGI'>0  S @(@ROOT@("CLOSEDROOT"))@(XTMLOGDT,INFO("COUNT"),INFO("LOCATION"),XTMLOGI)=@GLOBREF@(XTMLOGI)
  Q
  ;
-SOCKETAP(ROOT,INFO,MESSAGE) ;
- S ^TMP("XTMLOSKT","DATA",@ROOT@("PORT"),$J,INFO("COUNT"))=$$FORMAT(ROOT,.INFO,MESSAGE)
+SOCKETAP(ROOT,INFO,MESSAGE,VARS,XTMLOARR) ; Socket appender
+ Q:POP  ; ?? document this
+ U IO
+ N GLOBREF,XTMLOGI S GLOBREF=$NA(^TMP("SOCKETA",$J)) K @GLOBREF
+ I $G(INFO("SAVE")) D 
+ . W:$X $C(13,10)  ; new line if we need it.
+ . D ZWRITE(VARS,,,1) 
+ E  D SETLINES(GLOBREF,ROOT,.INFO,MESSAGE,$G(VARS),$G(XTMLOARR))
+ F XTMLOGI=0:0 S XTMLOGI=$O(@GLOBREF@(XTMLOGI)) Q:XTMLOGI'>0  D
+ . W $C(13,10),@GLOBREF@(XTMLOGI)
+ I +$SY=0 W *-3 ; Flush Cache
+ I +$SY=47 W ! ; GT.M (but really a noop... Linux sends the data right away)
+ ; S ^TMP("XTMLOSKT","DATA",@ROOT@("PORT"),$J,INFO("COUNT"))=$$FORMAT(ROOT,.INFO,MESSAGE) ; Don't know what that accomplished
  Q
  ;
 SETLINES(XTMLGLOB,ROOT,INFO,MESSAGE,VARS,XTMLOARR) ; returns lines for output in XTMLGLOB
@@ -186,13 +198,18 @@ FLATTEN(VARS,GLOBREF) ; Flatten via $QUERY; VARS is a string
  . N STOPVAR S STOPVAR=$NA(@VAR,QL)
  . S VAR=$Q(@VAR) Q:$NA(@VAR,QL)'=STOPVAR  Q:VAR=""  S CNT=CNT+1,@GLOBREF@(CNT)=@VAR
  QUIT
-ZWRITE(NAME,QS,QSREP) ; Replacement for ZWRITE ; Public Proc
+ZWRITE(NAME,QS,QSREP,SOC) ; Replacement for ZWRITE ; Public Proc
  ; Pass NAME by name as a closed reference. lvn and gvn are both supported.
  ; QS = Query Subscript to replace. Optional.
  ; QSREP = Query Subscrpt replacement. Optional, but must be passed if QS is.
+ ; SOC = Is socket?
+ ;
  ; : syntax is not supported (yet)
  S QS=$G(QS),QSREP=$G(QSREP)
  I QS,'$L(QSREP) S $EC=",U-INVALID-PARAMETERS,"
+ N NL ; new line
+ ; I $G(SOC)="" S NL="!" ; New line
+ ; E  N CRLF S CRLF=$C(13,10)_",*-3",NL=$NA(CRLF) ; Weirdness b/c we have to @NL.
  N INCEXPN S INCEXPN=""
  I $L(QSREP) S INCEXPN="S $G("_QSREP_")="_QSREP_"+1"
  N L S L=$L(NAME) ; Name length
@@ -206,6 +223,7 @@ ZWRITE(NAME,QS,QSREP) ; Replacement for ZWRITE ; Public Proc
  ; the last subscript of the Name. 
  F  S NAME=$Q(@NAME) Q:NAME=""  Q:$NA(@ORIGNAME,ORIGQL)'=$NA(@NAME,ORIGQL)  D
  . W $S(QS:$$SUBNAME(NAME,QS,QSREP),1:NAME),"=",$$FORMAT1(@NAME),!
+ W:(+$SY=0) *-3
  QUIT
  ;
 SUBNAME(N,QS,QSREP) ; Substitue subscript QS's value with QSREP in name reference N

@@ -19,7 +19,7 @@ XTMLOG1 ;jli/fo-oak - handle appender functions for Log4M ;06/07/08  17:06
  ;      of array elements should be displayed if they exist.
  ;
 CONSOLEA(ROOT,INFO,MESSAGE,VARS,XTMLOARR) ;
- I $G(IO)'=$P U $P
+ U IO
  N GLOBREF,XTMLOGI S GLOBREF=$NA(^TMP("CONSOLEA",$J)) K @GLOBREF
  I $G(INFO("SAVE")) D 
  . W $C(27)_"[32m"
@@ -51,18 +51,17 @@ GLOBAL(ROOT,INFO,MESSAGE,VARS,XTMLOARR) ;
  Q
  ;
 SOCKETAP(ROOT,INFO,MESSAGE,VARS,XTMLOARR) ; Socket appender
- Q:POP  ; ?? document this
- U IO
+ Q:'$D(XTMTCPIO)  ; No open device
+ ; N $ET,$ES S $ET="K XTMTCIPIO Q:($ES>1)"
+ U XTMTCPIO
+ W:$X $C(13,10)  ; new line if we need it.
  N GLOBREF,XTMLOGI S GLOBREF=$NA(^TMP("SOCKETA",$J)) K @GLOBREF
  I $G(INFO("SAVE")) D 
- . W:$X $C(13,10)  ; new line if we need it.
  . D ZWRITE(VARS,,,1) 
  E  D SETLINES(GLOBREF,ROOT,.INFO,MESSAGE,$G(VARS),$G(XTMLOARR))
- F XTMLOGI=0:0 S XTMLOGI=$O(@GLOBREF@(XTMLOGI)) Q:XTMLOGI'>0  D
- . W $C(13,10),@GLOBREF@(XTMLOGI)
- I +$SY=0 W *-3 ; Flush Cache
- I +$SY=47 W ! ; GT.M (but really a noop... Linux sends the data right away)
+ F XTMLOGI=0:0 S XTMLOGI=$O(@GLOBREF@(XTMLOGI)) Q:XTMLOGI'>0  W @GLOBREF@(XTMLOGI) D CRFLUSH
  ; S ^TMP("XTMLOSKT","DATA",@ROOT@("PORT"),$J,INFO("COUNT"))=$$FORMAT(ROOT,.INFO,MESSAGE) ; Don't know what that accomplished
+ U IO
  Q
  ;
 SETLINES(XTMLGLOB,ROOT,INFO,MESSAGE,VARS,XTMLOARR) ; returns lines for output in XTMLGLOB
@@ -216,13 +215,17 @@ ZWRITE(NAME,QS,QSREP,SOC) ; Replacement for ZWRITE ; Public Proc
  I $E(NAME,L-2,L)=",*)" S NAME=$E(NAME,1,L-3)_")" ; If last sub is *, remove it and close the ref
  N ORIGNAME S ORIGNAME=NAME          ; 
  N ORIGQL S ORIGQL=$QL(NAME)         ; Number of subscripts in the original name
- I $D(@NAME)#2 W $S(QS:$$SUBNAME(NAME,QS,QSREP),1:NAME),"=",$$FORMAT1(@NAME),!        ; Write base if it exists
+ I $D(@NAME)#2 W $S(QS:$$SUBNAME(NAME,QS,QSREP),1:NAME),"=",$$FORMAT1(@NAME),! D:$G(SOC) CRFLUSH        ; Write base if it exists
  ; $QUERY through the name. 
  ; Stop when we are out.
  ; Stop when the last subscript of the original name isn't the same as 
  ; the last subscript of the Name. 
  F  S NAME=$Q(@NAME) Q:NAME=""  Q:$NA(@ORIGNAME,ORIGQL)'=$NA(@NAME,ORIGQL)  D
- . W $S(QS:$$SUBNAME(NAME,QS,QSREP),1:NAME),"=",$$FORMAT1(@NAME),!
+ . W $S(QS:$$SUBNAME(NAME,QS,QSREP),1:NAME),"=",$$FORMAT1(@NAME),! D:$G(SOC) CRFLUSH
+ QUIT
+ ;
+CRFLUSH ; Flush socket (Linux doesn't need this... it sends upon write)
+ W $C(13,10)
  W:(+$SY=0) *-3
  QUIT
  ;
@@ -237,14 +240,14 @@ FORMAT1(V) ; Add quotes, replace control characters if necessary; Public $$
  ;If numeric, nothing to do.
  ;If no encoding required, then return as quoted string.
  ;Otherwise, return as an expression with $C()'s and strings.
- I +V=V Q V ; If numeric, just return the value.
- N QT S QT="""" ; Quote
- I $F(V,QT) D     ;chk if V contains any Quotes
- . N P S P=0          ;position pointer into V
+ I +V=V Q V       ; If numeric, just return the value.
+ N QT S QT=""""   ; Quote
+ I $F(V,QT) D     ; chk if V contains any Quotes
+ . N P S P=0                  ;position pointer into V
  . F  S P=$F(V,QT,P) Q:'P  D  ;find next "
  . . S $E(V,P-1)=QT_QT        ;double each "
  . . S P=P+1                  ;skip over new "
- I $$CCC(V) D  Q V  ; If control character is present do this and quit
+ I $$CCC(V) D  Q V     ; If control character is present do this and quit
  . S V=$$RCC(QT_V_QT)  ; Replace control characters in "V"
  . S:$E(V,1,3)="""""_" $E(V,1,3)="" ; Replace doubled up quotes at start
  . N L S L=$L(V) S:$E(V,L-2,L)="_""""" $E(V,L-2,L)="" ; Replace doubled up quotes at end
@@ -272,6 +275,12 @@ RCC(NA) ;Replace control chars in NA with $C( ). Returns encoded string; Public 
  . Q
  Q OUT
  ;
+ ;
+ ; NB: I realize I made a logic error. The global entry is in G., not the name of the .01
+ ; TODO: needs to be fixed.
+VIEW ;
+DISPLAY ; 
+VIEWLOG ; 
 LOGVIEW ; [Public] View logs interactively in ^XTMP
  ; ZEXCEPT: DTIME
  ;
@@ -302,14 +311,15 @@ LOGVIEW ; [Public] View logs interactively in ^XTMP
  . . S DONE=1
  QUIT:(X="^"!(X=" ")!(X=""))  ; If we ^ out, quit.
  ;
- I +X D RUN(X) QUIT
+ I +X D RUN(X,Y) QUIT
  I X="ALL" S X="" F  S X=$O(^XTMP(XTMLSUB,Y,X)) Q:X=""  D RUN(X)
  QUIT
  ;
-RUN(X) ; Runner
+RUN(X,DUZ) ; Runner
+ ; ZEXCEPT: XTMLSUB ... defined above
  N LINE S $P(LINE,"=",80)="="
  ; Now loop through the global.
- N R S R=$NA(^XTMP(XTMLSUB,Y,X))
+ N R S R=$NA(^XTMP(XTMLSUB,DUZ,X))
  N I,J,K,L,M,N S (I,J,K,L,M,N)=""
  F  S I=$O(@R@(I)) Q:I=""  D  ; Job Number
  . W $$BOLD(),$$CJ^XLFSTR("---- JOB NUMBER "_I_" ----",80),$$RESET,!!
@@ -359,7 +369,6 @@ YELLOW() ; Private
  Q $C(27)_"[33m"
 RESET() ; Private
  Q $C(27)_"[0m"
- ;
 BOLD() ; Private
  Q $C(27)_"[1m"
  ;

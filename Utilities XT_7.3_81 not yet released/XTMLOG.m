@@ -149,8 +149,9 @@ SETSOCK(ID,PORT,NAME,XTLOGINP) ;
  S HOST=$P(PORT,":")
  S REALPORT=$P(PORT,":",2)
  D
+ . I $D(XTMTCPIO) QUIT
  . N IO ; protect our precious IO
- . D CALL^%ZISTCP(HOST,REALPORT,1)
+ . D CALL^%ZISTCP(HOST,REALPORT,0)
  . I 'POP S XTMTCPIO=IO
  ; IO gets restored back. TCPIO is now the TCP device
  I $D(XTMTCPIO) D

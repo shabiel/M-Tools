@@ -146,17 +146,18 @@ SETSOCK(ID,PORT,NAME,XTLOGINP) ;
  ; S PORT=$S($G(PORT)="":8025,1:PORT)
  S @NODE@("PORT")=PORT
  ; D START^XTMLOSKT(PORT) ; Start socket running if it isn't already
- S HOST=$P(PORT,":")
+ N HOST S HOST=$P(PORT,":")
  S REALPORT=$P(PORT,":",2)
  D
  . I $D(XTMTCPIO) QUIT
  . N IO ; protect our precious IO
+ . N POP
  . D CALL^%ZISTCP(HOST,REALPORT,0)
  . I 'POP S XTMTCPIO=IO
- ; IO gets restored back. TCPIO is now the TCP device
+ ; IO gets restored back. XTMTCPIO is now the TCP device
  I $D(XTMTCPIO) D
- . I +$SY=47 U XTMTCPIO
- . I +$SY=0 U XTMTCPIO:(::"S")
+ . I +$SY=47 U XTMTCPIO        ; GT.M
+ . I +$SY=0 U XTMTCPIO:(::"S") ; Cache
  . W "Connected",$C(13,10),!
  . D CRFLUSH^XTMLOG1
  QUIT

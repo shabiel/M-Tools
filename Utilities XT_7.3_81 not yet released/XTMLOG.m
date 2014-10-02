@@ -156,6 +156,7 @@ SETSOCK(ID,PORT,NAME,XTLOGINP) ;
  . I 'POP S XTMTCPIO=IO
  ; IO gets restored back. XTMTCPIO is now the TCP device
  I $D(XTMTCPIO) D
+ . N $ES,$ET S $ET="D CLOSE^%ZISTCP S $EC="""""
  . I +$SY=47 U XTMTCPIO        ; GT.M
  . I +$SY=0 U XTMTCPIO:(::"S") ; Cache
  . W "Connected",$C(13,10),!

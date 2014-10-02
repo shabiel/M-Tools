@@ -51,8 +51,9 @@ GLOBAL(ROOT,INFO,MESSAGE,VARS,XTMLOARR) ;
  Q
  ;
 SOCKETAP(ROOT,INFO,MESSAGE,VARS,XTMLOARR) ; Socket appender
+ ; ZEXCEPT XTMTCPIO from XTMLOG socket initializer at SETSOCK
  Q:'$D(XTMTCPIO)  ; No open device
- ; N $ET,$ES S $ET="K XTMTCIPIO Q:($ES>1)"
+ N $ET,$ES S $ET="Q:($ES>1)  K XTMTCPIO S $EC="""""  ; bye bye. Kill TCPIO and unwind.
  U XTMTCPIO
  W:$X $C(13,10)  ; new line if we need it.
  N GLOBREF,XTMLOGI S GLOBREF=$NA(^TMP("SOCKETA",$J)) K @GLOBREF

@@ -1,5 +1,5 @@
 XTECLIPS ;JLI/FO-OAK - Eclipse Interface Via VistA Link ;01/15/12  13:56
- ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 30
+ ;;7.3;TOOLKIT;**101**;Apr 25, 1995
  ;;Per VHA Directive 2004-038, this routine should not be modified
  ; JLI 120115 added an extra argument to list to prevent occasional errors reported on GT.M
 RPC(XTECRES,XTECFUNC,XTECLINE,XTECFROM,XTECTO,XTECOPT,XTECXTRA) ;

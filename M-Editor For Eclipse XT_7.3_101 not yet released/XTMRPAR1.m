@@ -1,5 +1,5 @@
 XTMRPAR1 ;jli/oifo-oak - list tags, find variables that aren't arguments or newed ;10/28/10  16:18
- ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 30
+ ;;7.3;TOOLKIT;**101**;Apr 25, 1995
  D EN^XTMUNIT("ZZUTXTM1") ; RUN UNIT TESTS
  ;;Per VHA Directive 2004-038, this routine should not be modified
  Q

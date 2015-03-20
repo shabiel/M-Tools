@@ -2,13 +2,32 @@ This repository contains software development tools contributed by the
 community that are intended to facilitate and simplify the development
 of MUMPS-based software.
 
-The code in this repository is distributed under the
+The main author is Dr. Joel Ivey. Sam Habiel and Afsin Ustundag provided some
+enhancements which were contributed back.
 
-               Apache 2.0 License
+The tools included are:
 
+ * Code Formatter, which prettifies M code so that it can be read easily.
+ * Server side M Debugger routines which are used in conjuction with
+   Eclipse M Plugin (XT\*7.3\*107 -- patch number reserved but not released).
+ * Server side M Editing routines which are used with with Eclipse M Plugin;
+   plus the Eclipse M Plugins to be used in Eclipse (XT\*7.3\*101 -- patch
+   number reserved but not released).
+ * Logging support for M code similar to Log4J. (XT\*7.3\*81 -- patch number
+   reserved but not released). This patch also contains Unit Testing support
+   for Mumps, but that has since been split off into its separete repository:
+   https://github.com/joelivey/M-Unit.
 
-The code in this repository is under development and has not reached yet
-the BETA stage. You are welcome to contribute to its further development.
+The code in this repository is distributed under the Apache 2.0 license.
 
+     (C) Joel Ivey 2002-2015
 
-
+	 Licensed under the Apache License, Version 2.0 (the "License");
+	 you may not use this file except in compliance with the License.
+	 You may obtain a copy of the License at
+	 http://www.apache.org/licenses/LICENSE-2.0
+	 Unless required by applicable law or agreed to in writing, software
+	 distributed under the License is distributed on an "AS IS" BASIS,
+	 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	 See the License for the specific language governing permissions and
+	 limitations under the License.

@@ -1,5 +1,5 @@
-XTECROU ;FO-OAK/JLI - routine processing for eclipse ;08/06/12  19:20
- ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 30
+XTECROU ;FO-OAK/JLI - routine processing for eclipse ;6/21/2013
+ ;;7.3;TOOLKIT;**101**;Apr 25, 1995
  ;;Per VHA Directive 2004-038, this routine should not be modified
  Q
 DIR(XTECGLOB,XTECLINE,XTECFROM,XTECTO) ; This routine will provide a list of routines
@@ -49,7 +49,8 @@ LOAD(XTECGLOB,ROU) ; load the routine
  ;
  S I=0
  F  S I=$O(TMP(I)) Q:I<1  D
- . Q:TMP(I,0)=""  N J F J=1:1:$L(TMP(I,0)) I $E(TMP(I,0),J)=" " S TMP(I,0)=$E(TMP(I,0),1,J-1)_$C(9)_$E(TMP(I,0),J+1,$L(TMP(I,0))) Q
+ . Q:TMP(I,0)=""
+ .;N J F J=1:1:$L(TMP(I,0)) I $E(TMP(I,0),J)=" " S TMP(I,0)=$E(TMP(I,0),1,J-1)_$C(9)_$E(TMP(I,0),J+1,$L(TMP(I,0))) Q
  . S @XTECGLOB@(I)=TMP(I,0)
  S @XTECGLOB@(0)="1^"_ROU
  Q
@@ -185,7 +186,7 @@ LOADROU(ROU,LOC) ;EX. FUNCTION - LOAD A ROUTINE NAMED ROU INTO LOC ARRAY
  K @LOC
  S I=$$SETNAMES^XTECGLO(ROU,"") I I<0 Q "-1^Invalid Routine Name"
  ; $$ROU(ROU) used a check of the ROUTINE file for file name
- ; but routines with names longer than the standard always 
+ ; but routines with names longer than the standard always
  ; show up as not found will trap the error instead if not present
  ; I '$$ROU(ROU) Q "-1^Routine Not found" ; JLI 120806
  N $ETRAP S $ETRAP="D ERROR^XTECROU" ; JLI 120806

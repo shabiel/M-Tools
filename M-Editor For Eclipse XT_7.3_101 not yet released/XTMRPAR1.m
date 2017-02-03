@@ -1,5 +1,5 @@
 XTMRPAR1 ;jli/oifo-oak - list tags, find variables that aren't arguments or newed ;10/28/10  16:18
- ;;7.3;TOOLKIT;**101**;Apr 25, 1995
+ ;;7.3;TOOLKIT;**101**;Apr 25, 1995;Build 34
  D EN^XTMUNIT("ZZUTXTM1") ; RUN UNIT TESTS
  ;;Per VHA Directive 2004-038, this routine should not be modified
  Q
@@ -74,7 +74,7 @@ EN(ROUNAME,LOC) ;
 XTAGS(LOC,TAGLOC) ;
  N I,J,K,L,START,END,CMDTYPE,TERM,TYPE,VALUE,WORD,ARGVAL,EXCLUDES
  ; exclude basic kernel variables
- S EXCLUDES("DUZ")="",EXCLUDES("DT")="",EXCLUDES("U")="",EXCLUDES("IO")=""
+ F I="DILOCKTM","DT","DTIME","DUZ","IO","IOBS","IOF","IOM","ION","IOPAR","IOS","IOSL","IOST","IOT","IOUPAR","IOXY","U" S EXCLUDES(I)=""
  F I=0:0 S I=$O(@TAGLOC@(I)) Q:I'>0  D
  . N ARGS,NEWVAL,WORDS,EXCEPT
  . S START=@TAGLOC@(I),END=$G(@TAGLOC@(I,"Q"))
